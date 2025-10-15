@@ -1,0 +1,27 @@
+spring:
+  # Redis Settings
+  data:
+    redis:
+      host: localhost
+      post: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+  # Jackson JSON Settings
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    time-zone: Asia/Seoul
+
+# Logging Settings
+logging:
+  level:
+    com.example.messaging: DEBUG
+    org.springframework.data.redis: DEBUG
+    org.springframework.web.socket: DEBUG
