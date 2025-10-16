@@ -1,5 +1,6 @@
 package com.example.__spring_practice_notificationchatmessage.config;
 
+import com.example.__spring_practice_notificationchatmessage.listener.RedisMessageListener;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -9,6 +10,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -45,7 +48,29 @@ public class RedisConfig {
 
         template.afterPropertiesSet();
 
-        log.info("ReidsTemplate 설정 완료");
+        log.info("RedisTemplate 설정 완료");
         return template;
+    }
+
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(
+            RedisConnectionFactory connectionFactory,
+            RedisMessageListener redisMessageListener
+    ) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+
+        container.addMessageListener(redisMessageListener, new PatternTopic("notification:user:*"));
+        container.addMessageListener(redisMessageListener, new PatternTopic("notification:system:*"));
+        container.addMessageListener(redisMessageListener, new PatternTopic("notification:group:*"));
+
+        container.addMessageListener(redisMessageListener, new PatternTopic("chat:*"));
+
+        container.addMessageListener(redisMessageListener, new PatternTopic("chatroom:created"));
+
+        log.info("Redis Message Listener Container 설정 완료");
+        log.info("구독 채널: notification:user:*, notification:system, notification:group:*, chat:*, chatroom:created");
+
+        return container;
     }
 }
